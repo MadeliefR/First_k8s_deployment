@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 2 # not here by default, added to create 2 replicas of this application
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp        # should match the selector on the service meta data
+    spec:
+      containers:
+      - name: myapp
+        image: amigoscode/kubernetes:springboot-react-fullstack-v1 # fill in docker image
+        resources:
+          limits:
+            memory: "512Mi" # by default 128Mi
+            cpu: "500m"
+        ports:
+        - containerPort: 8080 # fill in the port the docker image is listening to
+
+# creating a service to which will allow you to acces the pods, 
+# you can think of the service as a loadbalancer
+# don't forget the 3 dashes:
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+spec:
+  type: NodePort  # not here by default, this will expose a random port on both nodes
+  selector:
+    app: myapp       # this should match any port that has the label that is filled in above 
+  ports:
+  - port: 80
+    targetPort: 8080 
